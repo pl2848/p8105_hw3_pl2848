@@ -1,0 +1,54 @@
+---
+title: "p8105_hw3_pl2848"
+author: "Pei Liu"
+date: "2022-10-12"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+import all the library needed
+```{r}
+library(tidyverse)
+library(p8105.datasets)
+library(dplyr)
+```
+
+# Problem 1
+```{r}
+data("instacart")
+```
+
+1. How many aisles are there, and which aisles are the most items ordered from?
+2. Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+3. Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+4. Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+
+# Problem 2
+
+Load, tidy, and otherwise wrangle the data. Your final dataset should include all originally observed variables and values; have useful variable names; include a weekday vs weekend variable; and encode data with reasonable variable classes. Describe the resulting dataset (e.g. what variables exist, how many observations, etc).
+```{r}
+accel_data = read_csv("data/accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(activity_1:activity_1440,
+               names_to = "minutes",
+               names_prefix = "activity_",
+               values_to = "activity_counts") %>% 
+  mutate(day = as.factor(day),
+         day_type = 
+           as.factor(ifelse(
+             day == "Saturday" | day == "Sunday",
+             "weekend", "weekday")),
+         day_id = as.numeric(day_id),
+         week = as.numeric(week))
+
+nrow(accel_data)
+ncol(accel_data)
+head(accel_data, 10)
+
+# Our tidy data set has 6 variables: week, day_id, day, minutes, activity_counts, and day_type.
+# In total, there are 50400 observations.
+```
+
+Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
