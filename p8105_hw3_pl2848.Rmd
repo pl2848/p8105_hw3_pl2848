@@ -41,7 +41,8 @@ accel_data = read_csv("data/accel_data.csv") %>%
              day == "Saturday" | day == "Sunday",
              "weekend", "weekday")),
          day_id = as.numeric(day_id),
-         week = as.numeric(week))
+         week = as.numeric(week),
+         minutes = as.numeric(minutes))
 
 nrow(accel_data)
 ncol(accel_data)
@@ -49,6 +50,110 @@ head(accel_data, 10)
 
 # Our tidy data set has 6 variables: week, day_id, day, minutes, activity_counts, and day_type.
 # In total, there are 50400 observations.
+# I also change the day and day_type to factoral variables, changed day_id, week and minutes to numeric variables.
 ```
 
 Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+
+
+```{r}
+
+total_activity = accel_data %>% 
+  group_by(day, week) %>% 
+  summarise(total_counts = sum(activity_counts)) %>% 
+  pivot_wider(
+    names_from = day,
+    values_from = total_counts
+  ) 
+
+knitr::kable(total_activity)
+  
+
+
+  
+  
+head(total_activity)
+
+
+# I didn't find apparent trends. But the total activity on Saturday at week 4 and 5 is extrmely small compared to other days.
+```
+
+
+
+Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
+```{r}
+total_activity_min = accel_data %>% 
+  group_by(day, minutes) %>% 
+  summarise(total_counts = sum(activity_counts))
+total_activity_min
+```
+
+
+```{r}
+trend_plot = total_activity_min %>% 
+  ggplot(aes(x = minutes, y = total_counts, color = day)) + 
+  geom_point(aes(color = day), alpha = .5, size = 0.1)  +
+  scale_x_continuous(breaks = seq(0, 1440, by = 120),
+                    labels = c("0:00", "2:00", "4:00", "6:00", "8:00", "10:00", "12:00", "14:00", "16:00", "18:00" , "20:00", "22:00", "24:00")
+                     ) +
+  labs(
+    title = "Activity over the days",
+    x = "Time",
+    y = "Total activity counts",
+    caption = "Data from Accelerometer") +
+  theme(legend.position = "bottom")
+  
+trend_plot
+trend_plot + geom_line()
+# Looking at the scatter plot, we can see that the counts of activity is low midnight (during the sleep time), and starts to increase after about 6. Then the counts reach the first peak around 12:00 (11:00. Then the counts drops around 13:00, and fluctuated until 20:00 to 22:00, where the activity reached the second peak. Then the activity drops after around 23:00.
+```
+
+
+
+# Problem 3
+This problem uses the NY NOAA data. DO NOT include this dataset in your local data directory; instead, load the data from the p8105.datasets package using:
+```{r}
+library(p8105.datasets)
+data("ny_noaa")
+```
+
+The goal is to do some exploration of this dataset. To that end, write a short description of the dataset, noting the size and structure of the data, describing some key variables, and indicating the extent to which missing data is an issue. Then, do or answer the following (commenting on the results of each):
+
+
+
+```{r}
+library(lubridate)
+ny_noaa_clean = ny_noaa %>% 
+  mutate(year = year(date),
+         month = month(date), 
+         day = day(date),
+         prcp = prcp/10 ) %>% #,
+         #tmax = as.numeric(tmax/10),
+         #tmin = as.numeric(tmin/10)) %>% 
+  drop_na(prcp, snow, snwd) %>% 
+  arrange(date)
+  
+
+head(ny_noaa_clean, 100)
+```
+
+```{r}
+snow_freq = ny_noaa_clean %>% 
+  count(snow) %>% 
+  arrange(desc(n))
+
+snow_freq
+
+# For snowfall, what are the most commonly observed values? Why?
+# The most commonly observed values are 0. Because it wouldn't snow everyday, especially in seasons other than winter. So most of the values are 0.
+```
+Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
+```{r}
+max_tem <- ny_noaa_clean %>% 
+  filter(month == 1 | month == 7) %>% 
+  group_by(month) %>% 
+  summarize(avg_tmax = mean(tmax))
+
+max_tem
+```
+
