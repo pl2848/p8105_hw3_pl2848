@@ -155,22 +155,30 @@ snow_freq
 Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
 ```{r}
 # I prepare the data for ploting
-max_tem <- ny_noaa_clean %>% 
+ny_noaa_clean %>% 
   filter(month == 1 | month == 7) %>% 
+  mutate (month = month.name[month]) %>% 
   group_by(year, month, id) %>% 
-  summarize(avg_tmax = mean(tmax))
-
-max_tem
-
+  summarize(avg_tmax = mean(tmax)) %>% 
 # x-axis is year, y axis is avg_tmax. I also separate them by month, so that there are two plots.
-avg_temp_jan_jul = max_tem %>% 
   ggplot(aes(x = year, y = avg_tmax)) +
-  geom_point()+
+  geom_point(aes(color = month), size = 0.5)+
   theme(legend.position = "none")+
-  facet_grid(~ month)
+  facet_grid(.~ month)
 
-
-avg_temp_jan_jul
 # We can see from the plot that there are two outliars in January around 1982 and 1996. The temperates were below -15. For temperatures in July, there is one outlier around 1988, the temperature was below 15. 
+```
+
+Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+```{r}
+# (i) tmax vs tmin for the full dataset
+ny_noaa_clean %>%  ggplot(aes(x = tmax, y = tmin)) + 
+  geom_hex()
+
+ny_noaa_clean %>%  
+  filter(snow > 0 | snow < 100) %>% 
+  group_by(year) %>% 
+  ggplot(aes(x = year, y = snow)) %>% 
+  
 ```
 
