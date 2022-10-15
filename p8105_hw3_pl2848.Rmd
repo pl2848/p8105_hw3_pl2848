@@ -131,17 +131,18 @@ ny_noaa_clean = ny_noaa %>%
   mutate(year = year(date),
          month = month(date), 
          day = day(date),
-         prcp = prcp/10 ) %>% #,
-         #tmax = as.numeric(tmax/10),
-         #tmin = as.numeric(tmin/10)) %>% 
-  drop_na(prcp, snow, snwd) %>% 
+         prcp = prcp/10 , 
+         tmax = as.numeric(tmax)/10,  
+         tmin = as.numeric(tmin)/10) %>% 
+  drop_na() %>% 
   arrange(date)
   
 
-head(ny_noaa_clean, 100)
+head(ny_noaa_clean)
 ```
 
 ```{r}
+# In this step, I calculated the frequency of snow (mm)
 snow_freq = ny_noaa_clean %>% 
   count(snow) %>% 
   arrange(desc(n))
@@ -153,11 +154,23 @@ snow_freq
 ```
 Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
 ```{r}
+# I prepare the data for ploting
 max_tem <- ny_noaa_clean %>% 
   filter(month == 1 | month == 7) %>% 
-  group_by(month) %>% 
+  group_by(year, month, id) %>% 
   summarize(avg_tmax = mean(tmax))
 
 max_tem
+
+# x-axis is year, y axis is avg_tmax. I also separate them by month, so that there are two plots.
+avg_temp_jan_jul = max_tem %>% 
+  ggplot(aes(x = year, y = avg_tmax)) +
+  geom_point()+
+  theme(legend.position = "none")+
+  facet_grid(~ month)
+
+
+avg_temp_jan_jul
+# We can see from the plot that there are two outliars in January around 1982 and 1996. The temperates were below -15. For temperatures in July, there is one outlier around 1988, the temperature was below 15. 
 ```
 
