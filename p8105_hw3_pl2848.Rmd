@@ -121,9 +121,6 @@ data("ny_noaa")
 ```
 
 The goal is to do some exploration of this dataset. To that end, write a short description of the dataset, noting the size and structure of the data, describing some key variables, and indicating the extent to which missing data is an issue. Then, do or answer the following (commenting on the results of each):
-
-
-
 ```{r}
 # For this step, I seperate the date variable into year, month and day. I adjust the units for prcp by deviding original prcp by 10, and do the same thing for tmax and tmin.
 library(lubridate)
@@ -135,9 +132,27 @@ ny_noaa_clean = ny_noaa %>%
          tmax = as.numeric(tmax)/10,  
          tmin = as.numeric(tmin)/10) %>% 
   arrange(date)
-  
 
-head(ny_noaa_clean)
+# Description:
+# There are 2595176 observations and 10 variables in this data set. 
+#The key variables are: date (yyyy-mm-dd format) ,  day, month and year (the separated variables from date, they are all numeric variables)  , id (the observation station, chracteristic variable), prcp (Precipitation (mm)) , snow (Snowfall (mm)) , snwd (Snow depth (mm)),  tmax (Maximum temperature (degrees C)) ,  tmin (Minimum temperature (degrees C) ).
+head(ny_noaa_clean, 100)
+ls(ny_noaa_clean)
+nrow(ny_noaa_clean)
+ncol(ny_noaa_clean)
+
+
+
+ny_noaa_clean %>% 
+  summarise_all(~sum(is.na(.)))
+# I used above code to check the number of NA for each variables. As it is shown, the numbers of NA's are listed below:
+# prcp: 145838
+# snow: 381221
+# snwd: 591786
+# tmax: 1134358
+# tmin: 1134420
+# There are great numbers of NA in this dataset. So how to handling these NA are important to the results. For me, I didn't drop all of the NA in the cleaned dataset, because I want to operate on these NAs separately later in analysis, so that I can preserve as much data as possible. 
+
 ```
 
 ```{r}
@@ -197,5 +212,7 @@ p2 = ny_noaa_clean %>%
 # I loaded library patchwork here to create the two penel plot
 library(patchwork)
 p1+p2 
+
+
 ```
 
