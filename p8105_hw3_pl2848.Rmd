@@ -134,7 +134,6 @@ ny_noaa_clean = ny_noaa %>%
          prcp = prcp/10 , 
          tmax = as.numeric(tmax)/10,  
          tmin = as.numeric(tmin)/10) %>% 
-  drop_na() %>% 
   arrange(date)
   
 
@@ -144,6 +143,7 @@ head(ny_noaa_clean)
 ```{r}
 # In this step, I calculated the frequency of snow (mm)
 snow_freq = ny_noaa_clean %>% 
+  drop_na(snow) %>% 
   count(snow) %>% 
   arrange(desc(n))
 
@@ -154,8 +154,9 @@ snow_freq
 ```
 Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
 ```{r}
-# I prepare the data for ploting
+# I prepare the data for ploting. I only drop tmax = na here, because that's the variable that I am interested in. I also changed month from numer to its name. 
 ny_noaa_clean %>% 
+  drop_na(tmax) %>% 
   filter(month == 1 | month == 7) %>% 
   mutate (month = month.name[month]) %>% 
   group_by(year, month, id) %>% 
@@ -164,9 +165,10 @@ ny_noaa_clean %>%
   ggplot(aes(x = year, y = avg_tmax)) +
   geom_point(aes(color = month), size = 0.5)+
   theme(legend.position = "none")+
-  facet_grid(.~ month)
+  facet_grid(.~ month) + 
+  geom_smooth()
 
-# We can see from the plot that there are two outliars in January around 1982 and 1996. The temperates were below -15. For temperatures in July, there is one outlier around 1988, the temperature was below 15. 
+# We can see from the plot that there are two outliers in January around 1982 and 2005 The temperatures were below -10. For temperatures in July, there is one obvious outlier around 1988, the temperature was below 15. 
 ```
 
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
@@ -181,7 +183,12 @@ p2 = ny_noaa_clean %>%
   filter(snow > 0 & snow < 100) %>% 
   select(year, snow) %>% 
   ggplot(aes(x = snow, y = as.factor(year))) +
-  geom_density_ridges(scale = 1)
+  geom_boxplot() +
+  labs(
+    title = "Snowfall (mm) among year",
+    x = "Snowfall (mm)",
+    y = "Year")
+  
   
 
 library(patchwork)
