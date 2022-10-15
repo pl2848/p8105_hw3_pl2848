@@ -87,7 +87,7 @@ total_activity_min = accel_data %>%
   summarise(total_counts = sum(activity_counts))
 total_activity_min
 
-# I prepared the data for my ggplot in this
+# I prepared the data for my ggplot in this step.
 ```
 
 
@@ -171,14 +171,20 @@ ny_noaa_clean %>%
 
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 ```{r}
+library(ggridges)
 # (i) tmax vs tmin for the full dataset
-ny_noaa_clean %>%  ggplot(aes(x = tmax, y = tmin)) + 
+p1 = ny_noaa_clean %>%  ggplot(aes(x = tmax, y = tmin)) + 
   geom_hex()
 
-ny_noaa_clean %>%  
-  filter(snow > 0 | snow < 100) %>% 
-  group_by(year) %>% 
-  ggplot(aes(x = year, y = snow)) %>% 
+# (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year
+p2 = ny_noaa_clean %>%  
+  filter(snow > 0 & snow < 100) %>% 
+  select(year, snow) %>% 
+  ggplot(aes(x = snow, y = as.factor(year))) +
+  geom_density_ridges(scale = 1)
   
+
+library(patchwork)
+p1+p2 
 ```
 
