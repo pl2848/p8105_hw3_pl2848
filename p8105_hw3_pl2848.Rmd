@@ -166,9 +166,14 @@ ny_noaa_clean %>%
   geom_point(aes(color = month), size = 0.5)+
   theme(legend.position = "none")+
   facet_grid(.~ month) + 
+  labs(
+    title = "Average max temperature in January and in July across years",
+    x = "Year",
+    y = "Max Temperature") +
   geom_smooth()
 
-# We can see from the plot that there are two outliers in January around 1982 and 2005 The temperatures were below -10. For temperatures in July, there is one obvious outlier around 1988, the temperature was below 15. 
+# The temperatures in January is significantly lower than it is in July. The mean temperature of January fluctuated around 0 Celsius, and the range of the temperature is wider. The temperature in July over years is more stable, with less fluctuation around 27 Celsius, with less range. 
+# We can see from the plot that there are two obvious outliers in January around 1982 and 2005 The temperatures were below -10 Celsius. For temperatures in July, there is one obvious outlier around 1988, the temperature was below 15 Celsius. 
 ```
 
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
@@ -189,8 +194,7 @@ p2 = ny_noaa_clean %>%
     x = "Snowfall (mm)",
     y = "Year")
   
-  
-
+# I loaded library patchwork here to create the two penel plot
 library(patchwork)
 p1+p2 
 ```
