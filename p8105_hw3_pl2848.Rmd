@@ -26,9 +26,10 @@ data("instacart")
 4. Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
 
 # Problem 2
-
+## Question 1
 Load, tidy, and otherwise wrangle the data. Your final dataset should include all originally observed variables and values; have useful variable names; include a weekday vs weekend variable; and encode data with reasonable variable classes. Describe the resulting dataset (e.g. what variables exist, how many observations, etc).
 ```{r}
+# I also change the day and day_type to factorial variables, changed day_id, week and minutes to numeric variables.
 accel_data = read_csv("data/accel_data.csv") %>% 
   janitor::clean_names() %>% 
   pivot_longer(activity_1:activity_1440,
@@ -48,13 +49,19 @@ nrow(accel_data)
 ncol(accel_data)
 head(accel_data, 10)
 
-# Our tidy data set has 6 variables: week, day_id, day, minutes, activity_counts, and day_type.
-# In total, there are 50400 observations.
-# I also change the day and day_type to factorial variables, changed day_id, week and minutes to numeric variables.
+# # In total, there are 50400 observations. Our tidy data set has 6 variables: week, day_id, day, minutes, activity_counts, and day_type. 
+# week is a numeric variable indicating which week is the data been collected, ranged from 1-5;
+# day_id is a numeric variable indicating the number of day that the data been collected, ranged from 1 to 35.
+# day is a factor variable indicating which day of the week the data been collected
+# minutes is a numeric variable indicating the collected minute of the data
+# activity_counts is a numeric variable, documenting the activity counts recorded by the accelerometer by minutes
+# day_type is a factor variable, indicating whether the day is weekday or weekend
+
+
 ```
 
+## Question 2
 Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
-
 
 ```{r}
 
@@ -75,11 +82,17 @@ knitr::kable(total_activity)
 head(total_activity)
 
 
-# I didn't find apparent trends. But the total activity on Saturday at week 4 and 5 is extrmely small compared to other days.
+# The total activity on Saturday at week 4 and 5 is extrmely small compared to other days. 
+#Week 1: Sunday has most counts, and Friday has the second active activity, while monday has least activity; 
+# week 2: Saturday has most activity and Monday has the least activity;
+# Week 3: Monday has most active activity and Thursday has the least activity
+# Week 4: Wednesday has most activity counts, Saturday has the least counts.
+# Week 5: Friday has the most activity, Saturady has the least
+# So the most active day is usually the weekend or the day before/after the weekend.  
 ```
 
 
-
+## Question 3
 Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
 ```{r}
 total_activity_min = accel_data %>% 
@@ -106,8 +119,8 @@ trend_plot = total_activity_min %>%
   theme(legend.position = "bottom")
   
 trend_plot
-trend_plot + geom_line()
-# Looking at the scatter plot, we can see that the counts of activity is low midnight (during the sleep time), and starts to increase after about 6. Then the counts reach the first peak around 12:00 (11:00. Then the counts drops around 13:00, and fluctuated until 20:00 to 22:00, where the activity reached the second peak. Then the activity drops after around 23:00.
+trend_plot +  geom_line()
+# Looking at the scatter plot, we can see that the counts of activity is very low midnight (during the sleep time), and starts to increase after about 6. Then the counts reach the first peak around 12:00 (11:00. Then the counts drops around 13:00, and fluctuated until 20:00 to 22:00, where the activity reached the second peak. Then the activity drops after around 23:00.
 ```
 
 
@@ -121,6 +134,9 @@ data("ny_noaa")
 ```
 
 The goal is to do some exploration of this dataset. To that end, write a short description of the dataset, noting the size and structure of the data, describing some key variables, and indicating the extent to which missing data is an issue. Then, do or answer the following (commenting on the results of each):
+
+## Question 1
+Do some data cleaning. Create separate variables for year, month, and day. Ensure observations for temperature, precipitation, and snowfall are given in reasonable units. 
 ```{r}
 # For this step, I seperate the date variable into year, month and day. I adjust the units for prcp by deviding original prcp by 10, and do the same thing for tmax and tmin.
 library(lubridate)
@@ -134,7 +150,7 @@ ny_noaa_clean = ny_noaa %>%
   arrange(date)
 
 # Description:
-# There are 2595176 observations and 10 variables in this data set. 
+# There are 2595176 observations.  I preserved the data variable, so there are 10 variables in this data set.
 #The key variables are: date (yyyy-mm-dd format) ,  day, month and year (the separated variables from date, they are all numeric variables)  , id (the observation station, chracteristic variable), prcp (Precipitation (mm)) , snow (Snowfall (mm)) , snwd (Snow depth (mm)),  tmax (Maximum temperature (degrees C)) ,  tmin (Minimum temperature (degrees C) ).
 head(ny_noaa_clean, 100)
 ls(ny_noaa_clean)
@@ -155,6 +171,7 @@ ny_noaa_clean %>%
 
 ```
 
+For snowfall, what are the most commonly observed values? Why?
 ```{r}
 # In this step, I calculated the frequency of snow (mm)
 snow_freq = ny_noaa_clean %>% 
@@ -167,6 +184,8 @@ snow_freq
 # For snowfall, what are the most commonly observed values? Why?
 # The most commonly observed values are 0. Because it wouldn't snow everyday, especially in seasons other than winter. So most of the values are 0.
 ```
+
+## Question 2
 Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
 ```{r}
 # I prepare the data for ploting. I only drop tmax = na here, because that's the variable that I am interested in. I also changed month from numer to its name. 
@@ -191,6 +210,7 @@ ny_noaa_clean %>%
 # We can see from the plot that there are two obvious outliers in January around 1982 and 2005 The temperatures were below -10 Celsius. For temperatures in July, there is one obvious outlier around 1988, the temperature was below 15 Celsius. 
 ```
 
+## Question 3
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 ```{r}
 library(ggridges)
@@ -208,7 +228,7 @@ p2 = ny_noaa_clean %>%
     title = "Snowfall (mm) among year",
     x = "Snowfall (mm)",
     y = "Year")
-  
+
 # I loaded library patchwork here to create the two penel plot
 library(patchwork)
 p1+p2 
