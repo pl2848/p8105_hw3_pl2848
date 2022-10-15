@@ -50,7 +50,7 @@ head(accel_data, 10)
 
 # Our tidy data set has 6 variables: week, day_id, day, minutes, activity_counts, and day_type.
 # In total, there are 50400 observations.
-# I also change the day and day_type to factoral variables, changed day_id, week and minutes to numeric variables.
+# I also change the day and day_type to factorial variables, changed day_id, week and minutes to numeric variables.
 ```
 
 Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
@@ -86,6 +86,8 @@ total_activity_min = accel_data %>%
   group_by(day, minutes) %>% 
   summarise(total_counts = sum(activity_counts))
 total_activity_min
+
+# I prepared the data for my ggplot in this
 ```
 
 
@@ -113,6 +115,7 @@ trend_plot + geom_line()
 # Problem 3
 This problem uses the NY NOAA data. DO NOT include this dataset in your local data directory; instead, load the data from the p8105.datasets package using:
 ```{r}
+# Loaded the data
 library(p8105.datasets)
 data("ny_noaa")
 ```
@@ -122,6 +125,7 @@ The goal is to do some exploration of this dataset. To that end, write a short d
 
 
 ```{r}
+# For this step, I seperate the date variable into year, month and day. I adjust the units for prcp by deviding original prcp by 10, and do the same thing for tmax and tmin.
 library(lubridate)
 ny_noaa_clean = ny_noaa %>% 
   mutate(year = year(date),
